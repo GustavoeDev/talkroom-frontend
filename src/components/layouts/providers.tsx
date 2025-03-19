@@ -23,7 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ChatAuth from "@/assets/chat-auth";
 
-export const socket = io(process.env.NEXT_PUBLIC_API_URL as string);
+export const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL as string, {
+  transports: ["websocket"],
+});
 
 export function ThemeProvider({
   children,

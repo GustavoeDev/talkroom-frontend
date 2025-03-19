@@ -14,7 +14,7 @@ import {
 
 export const signIn = async (data: SignInData) => {
   return await axiosAPI<APISignIn>({
-    endpoint: "users/signin",
+    endpoint: "/users/signin/",
     method: "POST",
     withAuth: false,
     data,
@@ -23,7 +23,7 @@ export const signIn = async (data: SignInData) => {
 
 export const signUp = async (data: SignUpData) => {
   return await axiosAPI<APISignUp>({
-    endpoint: "users/signup",
+    endpoint: "/users/signup/",
     method: "POST",
     withAuth: false,
     data,
@@ -32,7 +32,7 @@ export const signUp = async (data: SignUpData) => {
 
 export const updateUser = async (data: FormData) => {
   return await axiosAPI<APIUpdateUser>({
-    endpoint: "users/me",
+    endpoint: "/users/me/",
     method: "PUT",
     data,
     withAttachment: true,
@@ -43,13 +43,13 @@ export const updateUser = async (data: FormData) => {
 
 export const getChats = async () => {
   return await axiosAPI<APIGetChats>({
-    endpoint: "/chats",
+    endpoint: "/chats/",
   });
 };
 
 export const createChat = async (data: NewChatData) => {
   return await axiosAPI<APICreateChat>({
-    endpoint: "/chats",
+    endpoint: "/chats/",
     method: "POST",
     data,
   });
@@ -57,20 +57,20 @@ export const createChat = async (data: NewChatData) => {
 
 export const deleteChat = async (chat_id: number) => {
   return await axiosAPI<APIDeleteChat>({
-    endpoint: `/chats/${chat_id}`,
+    endpoint: `/chats/${chat_id}/`,
     method: "DELETE",
   });
 };
 
 export const getChatMessages = async (chat_id: number) => {
   return await axiosAPI<APIGetMessages>({
-    endpoint: `/chats/${chat_id}/messages`,
+    endpoint: `/chats/${chat_id}/messages/`,
   });
 };
 
 export const createChatMessages = async (chat_id: number, data: FormData) => {
   return await axiosAPI<APICreateMessage>({
-    endpoint: `/chats/${chat_id}/messages`,
+    endpoint: `/chats/${chat_id}/messages/`,
     method: "POST",
     data,
     withAttachment: true,
@@ -82,7 +82,7 @@ export const deleteChatMessages = async (
   message_id: number
 ) => {
   return await axiosAPI<APIDeleteMessage>({
-    endpoint: `/chats/${chat_id}/messages/${message_id}`,
+    endpoint: `/chats/${chat_id}/messages/${message_id}/`,
     method: "DELETE",
   });
 };

@@ -1,3 +1,5 @@
+"use server";
+
 import { cookies } from "next/headers";
 import { signIn, signUp } from "../requests";
 import { SignInData, SignUpData } from "../schemas/auth-schema";
