@@ -1,7 +1,6 @@
 "use client";
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { Toaster } from "../ui/sonner";
 
 import { useEffect } from "react";
 
@@ -35,12 +34,7 @@ export function ThemeProvider({
     dayjs.locale("pt-br");
   }, []);
 
-  return (
-    <NextThemesProvider {...props}>
-      {children}
-      <Toaster />
-    </NextThemesProvider>
-  );
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
 
 interface AuthLayoutProps {
