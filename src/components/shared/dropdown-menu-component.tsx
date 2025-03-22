@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AvatarComponent from "./avatar-component";
+import { LogOut, UserRoundPen } from "lucide-react";
 
 export default function DropdownMenuComponent() {
   return (
@@ -15,12 +16,16 @@ export default function DropdownMenuComponent() {
         <AvatarComponent className="cursor-pointer h-9 w-9" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem>Billing</DropdownMenuItem>
-        <DropdownMenuItem>Team</DropdownMenuItem>
-        <DropdownMenuItem>Subscription</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">
+          <UserRoundPen />
+          Editar dados
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">
+          <LogOut className="text-red-500" />
+          Sair
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
