@@ -1,4 +1,5 @@
 import { ModeToggle } from "@/components/layouts/providers";
+import BannerDefault from "@/components/shared/banner-default";
 import Chat from "@/components/shared/chat";
 import DropdownMenuComponent from "@/components/shared/dropdown-menu-component";
 import ToolTipHoverComponent from "@/components/shared/tooltip-component";
@@ -50,8 +51,9 @@ export default function Home() {
           </div>
         </div>
       </aside>
-      <div>
-        <h1>main</h1>
+
+      <div className="flex-1">
+        <BannerDefault />
       </div>
     </main>
   );
