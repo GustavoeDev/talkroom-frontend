@@ -6,7 +6,9 @@ export default function Chat() {
       <AvatarComponent className="w-11 h-11" />
       <div className="flex flex-col items-start gap-1 w-full">
         <h2 className="text-sm font-medium">John Doe</h2>
-        <p className="text-xs text-zinc-400">Lorem ipsum dolor.</p>
+        <p className="text-xs dark:text-zinc-400 text-zinc-600">
+          Lorem ipsum dolor.
+        </p>
       </div>
     </button>
   );
