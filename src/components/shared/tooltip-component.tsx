@@ -15,11 +15,12 @@ export default function ToolTipHoverComponent({
   children,
   text,
   className,
-}: ToolTipHoverComponentProps) {
+  ...triggerProps
+}: ToolTipHoverComponentProps & React.HTMLAttributes<HTMLButtonElement>) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipTrigger {...triggerProps}>{children}</TooltipTrigger>
         <TooltipContent>
           <p className={className}>{text}</p>
         </TooltipContent>

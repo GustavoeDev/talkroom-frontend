@@ -1,9 +1,10 @@
 import { ModeToggle } from "@/components/layouts/providers";
 import BannerDefault from "@/components/shared/banner-default";
-import Chat from "@/components/shared/chat";
+import ChatList from "@/components/shared/chat-list";
 import DropdownMenuComponent from "@/components/shared/dropdown-menu-component";
+import NewChat from "@/components/shared/new-chat";
 import ToolTipHoverComponent from "@/components/shared/tooltip-component";
-import { Lock, MessageSquareDiff, Search } from "lucide-react";
+import { Lock, Search } from "lucide-react";
 
 export default function Home() {
   return (
@@ -15,9 +16,7 @@ export default function Home() {
               Conversas
             </ToolTipHoverComponent>
             <div className="flex items-center gap-4">
-              <ToolTipHoverComponent text="Nova conversa">
-                <MessageSquareDiff className="dark:text-zinc-400 dark:hover:text-zinc-100 hover:text-zinc-600 cursor-pointer" />
-              </ToolTipHoverComponent>
+              <NewChat />
               <ModeToggle />
             </div>
           </div>
@@ -30,14 +29,7 @@ export default function Home() {
         </div>
 
         <div className="overflow-y-auto h-full">
-          <Chat />
-          <Chat />
-          <Chat />
-          <Chat />
-          <Chat />
-          <Chat />
-          <Chat />
-          <Chat />
+          <ChatList />
           <div className="border-t dark:border-zinc-800 border-zinc-300 mx-4 py-4 flex items-center justify-center gap-2">
             <Lock size={14} />
             <p className="text-sm">Suas mensagens estão protegidas</p>
