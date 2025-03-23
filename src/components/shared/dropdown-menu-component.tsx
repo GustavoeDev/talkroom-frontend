@@ -26,10 +26,6 @@ export default function DropdownMenuComponent() {
   const [openDialog, setOpenDialog] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
 
-  async function handleLogout() {
-    await handleSignOut();
-  }
-
   function handleUpdateClickModal() {
     setOpenDialog(true);
     setOpenDropdown(false);
@@ -51,10 +47,15 @@ export default function DropdownMenuComponent() {
             <UserRoundPen size={16} />
             Editar dados
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-            <LogOut className="text-red-500" />
-            Sair
-          </DropdownMenuItem>
+
+          <form action={handleSignOut}>
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <button type="submit" className="w-full">
+                <LogOut className="text-red-500" />
+                Sair
+              </button>
+            </DropdownMenuItem>
+          </form>
         </DropdownMenuContent>
       </DropdownMenu>
 
