@@ -1,7 +1,6 @@
 "use client";
 
 import { MessageSquareDiff } from "lucide-react";
-import ToolTipHoverComponent from "./tooltip-component";
 
 import {
   Drawer,
@@ -20,6 +19,7 @@ import { NewChatData, newChatSchema } from "@/lib/schemas/chat-schema";
 import { createChat } from "@/lib/requests";
 import { toast } from "sonner";
 import { useChatStore } from "@/stores/chat-store";
+import { ToolTipHoverComponent } from "../layouts/providers";
 
 export default function NewChat() {
   const { setShowNewChat, showNewChat, setChat } = useChatStore();

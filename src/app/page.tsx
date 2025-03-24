@@ -1,9 +1,11 @@
-import { ModeToggle } from "@/components/layouts/providers";
+import {
+  ModeToggle,
+  ToolTipHoverComponent,
+} from "@/components/layouts/providers";
 import BannerDefault from "@/components/shared/banner-default";
 import ChatList from "@/components/shared/chat-list";
-import DropdownMenuComponent from "@/components/shared/dropdown-menu-component";
+import ProfileSettings from "@/components/shared/profile-settings";
 import NewChat from "@/components/shared/new-chat";
-import ToolTipHoverComponent from "@/components/shared/tooltip-component";
 import { Lock, Search } from "lucide-react";
 
 export default function Home() {
@@ -39,7 +41,7 @@ export default function Home() {
         <div className="mt-auto p-4 flex items-center justify-between">
           <p className="text-sm">Configurações de conta</p>
           <div className="flex items-center gap-4">
-            <DropdownMenuComponent />
+            <ProfileSettings />
           </div>
         </div>
       </aside>

@@ -22,6 +22,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ChatAuth from "@/assets/chat-auth";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 export const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL as string, {
   transports: ["websocket"],
 });
@@ -78,5 +87,42 @@ export function ModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+interface AvatarComponentProps {
+  className?: string;
+}
+
+export function AvatarComponent({ className }: AvatarComponentProps) {
+  return (
+    <Avatar className={className}>
+      <AvatarImage src="https://avatars.githubusercontent.com/u/177130380?v=4" />
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
+  );
+}
+
+interface ToolTipHoverComponentProps {
+  children: React.ReactNode;
+  text?: string;
+  className?: string;
+}
+
+export function ToolTipHoverComponent({
+  children,
+  text,
+  className,
+  ...triggerProps
+}: ToolTipHoverComponentProps & React.HTMLAttributes<HTMLButtonElement>) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger {...triggerProps}>{children}</TooltipTrigger>
+        <TooltipContent>
+          <p className={className}>{text}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

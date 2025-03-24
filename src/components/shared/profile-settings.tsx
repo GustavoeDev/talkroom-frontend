@@ -16,13 +16,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import AvatarComponent from "./avatar-component";
 import { LogOut, UserRoundPen } from "lucide-react";
 import { handleSignOut } from "@/lib/server/auth";
 import { useState } from "react";
 import FormUpdateUser from "./form-update-user";
+import { AvatarComponent } from "../layouts/providers";
 
-export default function DropdownMenuComponent() {
+export default function ProfileSettings() {
   const [openDialog, setOpenDialog] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
 

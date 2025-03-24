@@ -1,4 +1,4 @@
-import AvatarComponent from "./avatar-component";
+import { AvatarComponent } from "../layouts/providers";
 
 export default function Chat() {
   return (
