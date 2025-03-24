@@ -6,7 +6,6 @@ import { SignInData, signInSchema } from "@/lib/schemas/auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { handleSignIn } from "@/lib/server/auth";
 import { toast } from "sonner";
-import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "next/navigation";
 
 export default function SignInComponent() {
@@ -29,7 +28,8 @@ export default function SignInComponent() {
       return;
     }
 
-    useAuthStore.getState().setUser(response.data.user);
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+
     toast.success("Usuário autenticado com sucesso!", {
       position: "bottom-right",
     });

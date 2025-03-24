@@ -31,6 +31,10 @@ export default function DropdownMenuComponent() {
     setOpenDropdown(false);
   }
 
+  function handleSignOutLocalStorage() {
+    localStorage.removeItem("user");
+  }
+
   return (
     <>
       <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
@@ -50,7 +54,11 @@ export default function DropdownMenuComponent() {
 
           <form action={handleSignOut}>
             <DropdownMenuItem asChild className="cursor-pointer">
-              <button type="submit" className="w-full">
+              <button
+                type="submit"
+                className="w-full"
+                onClick={handleSignOutLocalStorage}
+              >
                 <LogOut className="text-red-500" />
                 Sair
               </button>

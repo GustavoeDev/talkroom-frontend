@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignUpData, signUpSchema } from "@/lib/schemas/auth-schema";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/auth-store";
 import { handleSignUp } from "@/lib/server/auth";
 import { toast } from "sonner";
 
@@ -30,7 +29,7 @@ export default function SignUpComponent() {
       return;
     }
 
-    useAuthStore.getState().setUser(response.data.user);
+    localStorage.setItem("user", JSON.stringify(response.data.user));
     toast.success("Usuário autenticado com sucesso!", {
       position: "bottom-right",
     });

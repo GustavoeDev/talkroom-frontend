@@ -1,25 +1,29 @@
 "use client";
 
 import { UpdateUserData, updateUserSchema } from "@/lib/schemas/user-schema";
-import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { updateUser } from "@/lib/requests";
+import { User } from "@/types/user";
 
 export default function FormUpdateUser() {
-  const { user, setUser } = useAuthStore();
-
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState("");
+
+  function handleGetUserAuthenticated() {
+    return JSON.parse(localStorage.getItem("user") as string);
+  }
+
+  const userAuthenticated: User | null = handleGetUserAuthenticated();
 
   const { register, handleSubmit, reset } = useForm<UpdateUserData>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      name: user?.name,
-      email: user?.email,
+      name: userAuthenticated?.name,
+      email: userAuthenticated?.email,
       password: "",
       confirm_password: "",
     },
@@ -72,10 +76,15 @@ export default function FormUpdateUser() {
 
     const user = response.data.user;
 
-    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
     setAvatar(null);
 
-    reset();
+    reset({
+      name: user.name,
+      email: user.email,
+      password: "",
+      confirm_password: "",
+    });
 
     toast.success("Usuário atualizado com sucesso!", {
       position: "bottom-right",
@@ -89,8 +98,11 @@ export default function FormUpdateUser() {
     >
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16">
-          <AvatarImage src={avatarUrl ?? user?.avatar} alt={user?.name} />
-          <AvatarFallback>{user?.name.slice(0, 2)}</AvatarFallback>
+          <AvatarImage
+            src={avatarUrl ?? userAuthenticated?.avatar}
+            alt={userAuthenticated?.name}
+          />
+          <AvatarFallback>{userAuthenticated?.name.slice(0, 2)}</AvatarFallback>
         </Avatar>
 
         <input
