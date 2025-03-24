@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ChatAuth from "@/assets/chat-auth";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import {
   Tooltip,
   TooltipContent,
@@ -87,19 +85,6 @@ export function ModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-}
-
-interface AvatarComponentProps {
-  className?: string;
-}
-
-export function AvatarComponent({ className }: AvatarComponentProps) {
-  return (
-    <Avatar className={className}>
-      <AvatarImage src="https://avatars.githubusercontent.com/u/177130380?v=4" />
-      <AvatarFallback>CN</AvatarFallback>
-    </Avatar>
   );
 }
 

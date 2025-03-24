@@ -18,13 +18,25 @@ import {
 
 import { LogOut, UserRoundPen } from "lucide-react";
 import { handleSignOut } from "@/lib/server/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormUpdateUser from "./form-update-user";
-import { AvatarComponent } from "../layouts/providers";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "@/types/user";
 
 export default function ProfileSettings() {
   const [openDialog, setOpenDialog] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [userAuthenticated, setUserAuthenticated] = useState<User | null>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setUserAuthenticated(user ? JSON.parse(user) : null);
+  }, []);
+
+  function handleUpdateAvatarUser(user: User) {
+    setUserAuthenticated(user);
+  }
 
   function handleUpdateClickModal() {
     setOpenDialog(true);
@@ -39,7 +51,12 @@ export default function ProfileSettings() {
     <>
       <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
         <DropdownMenuTrigger>
-          <AvatarComponent className="cursor-pointer h-9 w-9" />
+          <Avatar className="cursor-pointer h-9 w-9">
+            <AvatarImage src={userAuthenticated?.avatar} />
+            <AvatarFallback>
+              {userAuthenticated?.name.slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
@@ -72,7 +89,10 @@ export default function ProfileSettings() {
           <DialogHeader>
             <DialogTitle>Editar dados do usuário</DialogTitle>
           </DialogHeader>
-          <FormUpdateUser />
+          <FormUpdateUser
+            user={userAuthenticated}
+            handleUpdateAvatarUser={handleUpdateAvatarUser}
+          />
         </DialogContent>
       </Dialog>
     </>

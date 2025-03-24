@@ -9,21 +9,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { updateUser } from "@/lib/requests";
 import { User } from "@/types/user";
 
-export default function FormUpdateUser() {
+interface FormUpdateUserProps {
+  user: User | null;
+  handleUpdateAvatarUser: (user: User) => void;
+}
+
+export default function FormUpdateUser({
+  user,
+  handleUpdateAvatarUser,
+}: FormUpdateUserProps) {
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState("");
-
-  function handleGetUserAuthenticated() {
-    return JSON.parse(localStorage.getItem("user") as string);
-  }
-
-  const userAuthenticated: User | null = handleGetUserAuthenticated();
 
   const { register, handleSubmit, reset } = useForm<UpdateUserData>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      name: userAuthenticated?.name,
-      email: userAuthenticated?.email,
+      name: user?.name,
+      email: user?.email,
       password: "",
       confirm_password: "",
     },
@@ -77,6 +79,7 @@ export default function FormUpdateUser() {
     const user = response.data.user;
 
     localStorage.setItem("user", JSON.stringify(user));
+    handleUpdateAvatarUser(user);
     setAvatar(null);
 
     reset({
@@ -99,10 +102,10 @@ export default function FormUpdateUser() {
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16">
           <AvatarImage
-            src={avatarUrl ?? userAuthenticated?.avatar}
-            alt={userAuthenticated?.name}
+            src={avatarUrl ? avatarUrl : user?.avatar}
+            alt={user?.name}
           />
-          <AvatarFallback>{userAuthenticated?.name.slice(0, 2)}</AvatarFallback>
+          <AvatarFallback>{user?.name.slice(0, 2)}</AvatarFallback>
         </Avatar>
 
         <input
