@@ -43,9 +43,13 @@ export default function ChatComponent({
 
         <div className="flex items-center justify-between w-full gap-2">
           {chat.last_message ? (
-            <div className="text-xs dark:text-zinc-400 text-zinc-600">
+            <div className="text-xs dark:text-zinc-400 text-zinc-600 flex items-center gap-2 justify-between w-full">
               {chat.last_message.body ? (
-                chat.last_message.body.slice(0, 25) + "..."
+                chat.last_message.body.length > 25 ? (
+                  chat.last_message.body.slice(0, 25) + "..."
+                ) : (
+                  chat.last_message.body
+                )
               ) : chat.last_message.attachment?.audio ? (
                 <div className="flex items-center gap-1">
                   <Mic size={16} />
@@ -60,7 +64,7 @@ export default function ChatComponent({
                 ""
               )}
 
-              <div className="flex items-center gap-2">
+              <div>
                 {chat.message_not_viewed > 0 ? (
                   <Badge>{chat.message_not_viewed}</Badge>
                 ) : (
@@ -69,7 +73,7 @@ export default function ChatComponent({
                       className={
                         chat.last_message.viewed_at
                           ? "text-emerald-600"
-                          : "text-zinc-800"
+                          : "text-zinc-500"
                       }
                     >
                       <CheckCheck size={16} />

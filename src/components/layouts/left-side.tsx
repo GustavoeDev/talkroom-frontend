@@ -30,8 +30,6 @@ export default function LeftSide() {
     setUser(user);
   }, []);
 
-  console.log(chatsFiltered);
-
   async function handleGetChats() {
     const response = await getChats();
 
