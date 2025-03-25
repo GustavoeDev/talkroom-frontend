@@ -1,17 +1,89 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Chat } from "@/types/chat";
+import { User } from "@/types/user";
+import dayjs from "dayjs";
+import { CheckCheck, FileText, Mic } from "lucide-react";
+import { Badge } from "../ui/badge";
 
-export default function Chat() {
+interface ChatProps {
+  user: User;
+  userLogged: User | null;
+  chat: Chat;
+  onClick?: () => void;
+}
+
+export default function ChatComponent({
+  user,
+  chat,
+  onClick,
+  userLogged,
+}: ChatProps) {
+  const isOnline: boolean = dayjs()
+    .subtract(5, "minutes")
+    .isBefore(dayjs(user.last_login));
+
   return (
-    <button className="dark:hover:bg-zinc-800 hover:bg-zinc-100 cursor-pointer py-3 px-4 flex items-center gap-4 w-full">
-      <Avatar>
-        <AvatarImage src="http://127.0.0.1:8000/media/avatars/avatar-default.png" />
-        <AvatarFallback>CN</AvatarFallback>
+    <button
+      onClick={onClick}
+      className="dark:hover:bg-zinc-800 hover:bg-zinc-100 cursor-pointer py-3 px-4 flex items-center gap-4 w-full"
+    >
+      <Avatar isOnline={isOnline} className="w-12 h-12">
+        <AvatarImage src={user.avatar} alt={user.name} />
+        <AvatarFallback>{user.name.slice(0, 2)}</AvatarFallback>
       </Avatar>
-      <div className="flex flex-col items-start gap-1 w-full">
-        <h2 className="text-sm font-medium">John Doe</h2>
-        <p className="text-xs dark:text-zinc-400 text-zinc-600">
-          Lorem ipsum dolor.
-        </p>
+      <div className="flex flex-col justify-center items-start gap-3 w-full h-full">
+        <div className="flex items-center justify-between w-full gap-2">
+          <h2 className="text-sm font-medium ">{user.name}</h2>
+          <span className="text-xs dark:text-zinc-400 text-zinc-600">
+            {dayjs(chat.viewed_at ? chat.viewed_at : chat.created_at).format(
+              "DD/MM/YYYY"
+            )}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between w-full gap-2">
+          {chat.last_message ? (
+            <div className="text-xs dark:text-zinc-400 text-zinc-600">
+              {chat.last_message.body ? (
+                chat.last_message.body.slice(0, 25) + "..."
+              ) : chat.last_message.attachment?.audio ? (
+                <div className="flex items-center gap-1">
+                  <Mic size={16} />
+                  Mensagem de voz
+                </div>
+              ) : chat.last_message.attachment?.file ? (
+                <div className="flex items-center gap-1">
+                  <FileText size={16} />
+                  Arquivo
+                </div>
+              ) : (
+                ""
+              )}
+
+              <div className="flex items-center gap-2">
+                {chat.message_not_viewed > 0 ? (
+                  <Badge>{chat.message_not_viewed}</Badge>
+                ) : (
+                  chat.last_message?.from_user.id === userLogged?.id && (
+                    <div
+                      className={
+                        chat.last_message.viewed_at
+                          ? "text-emerald-600"
+                          : "text-zinc-800"
+                      }
+                    >
+                      <CheckCheck size={16} />
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          ) : (
+            <span className="text-xs dark:text-zinc-400 text-zinc-600">
+              Clique aqui para iniciar uma conversa
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );
