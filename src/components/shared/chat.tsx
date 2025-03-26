@@ -41,7 +41,7 @@ export default function ChatComponent({
           </span>
         </div>
 
-        <div className="flex items-center justify-between w-full gap-2">
+        <div className="flex justify-between w-full gap-2">
           {chat.last_message ? (
             <div className="text-xs dark:text-zinc-400 text-zinc-600 flex items-center gap-2 justify-between w-full">
               {chat.last_message.body ? (
@@ -66,7 +66,9 @@ export default function ChatComponent({
 
               <div>
                 {chat.message_not_viewed > 0 ? (
-                  <Badge>{chat.message_not_viewed}</Badge>
+                  <Badge className="py-0 bg-emerald-500 font-medium">
+                    {chat.message_not_viewed}
+                  </Badge>
                 ) : (
                   chat.last_message?.from_user.id === userLogged?.id && (
                     <div

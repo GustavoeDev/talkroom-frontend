@@ -23,8 +23,11 @@ import FormUpdateUser from "./form-update-user";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@/types/user";
+import { useChatStore } from "@/stores/chat-store";
 
 export default function ProfileSettings() {
+  const { setChat, setChatMessages, setChats } = useChatStore();
+
   const [openDialog, setOpenDialog] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
   const [userAuthenticated, setUserAuthenticated] = useState<User | null>(null);
@@ -45,6 +48,9 @@ export default function ProfileSettings() {
 
   function handleSignOutLocalStorage() {
     localStorage.removeItem("user");
+    setChats(null);
+    setChat(null);
+    setChatMessages(null);
   }
 
   return (

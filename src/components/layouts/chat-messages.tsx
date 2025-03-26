@@ -2,6 +2,8 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  CheckCheck,
+  ChevronDown,
   EllipsisVertical,
   File,
   FileMinus,
@@ -31,9 +33,12 @@ import { User } from "@/types/user";
 import { useChatStore } from "@/stores/chat-store";
 import { createChatMessages, getChatMessages } from "@/lib/requests";
 import { toast } from "sonner";
+import dayjs from "dayjs";
+import { socket } from "./providers";
+import { MarkMessageAsViewedEvent, UpdateMessageEvent } from "@/types/message";
 
 export default function ChatMessages() {
-  const { chat: currentChat } = useChatStore();
+  const { chat: currentChat, setChatMessages, chatMessages } = useChatStore();
 
   const [user, setUser] = useState<User | null>(null);
   const [messageInput, setMessageInput] = useState("");
@@ -52,13 +57,44 @@ export default function ChatMessages() {
 
     const response = await getChatMessages(currentChat.id);
 
-    if (response) {
-      console.log(response.data);
+    if (response.data) {
+      setChatMessages(response.data.messages);
     }
   }
 
   useEffect(() => {
     handleGetChatMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const handleUpdateChatMessage = (data: UpdateMessageEvent) => {
+      if (data.type === "create" && currentChat?.id === data.query.chat_id) {
+        handleGetChatMessages();
+      }
+    };
+
+    socket.on("update_chat_message", handleUpdateChatMessage);
+
+    return () => {
+      socket.off("update_chat_message", handleUpdateChatMessage);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChat]);
+
+  useEffect(() => {
+    const handleMarkAsViewedChat = (data: MarkMessageAsViewedEvent) => {
+      if (data.query.chat_id === currentChat?.id) {
+        handleGetChatMessages();
+      }
+    };
+
+    socket.on("mark_message_as_viewed", handleMarkAsViewedChat);
+
+    return () => {
+      socket.off("mark_message_as_viewed", handleMarkAsViewedChat);
+    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChat]);
 
@@ -103,8 +139,7 @@ export default function ChatMessages() {
       setMessageInput("");
       setSelectedFile(null);
       setFileExists(false);
-    } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
+    } catch {
       toast.error("Erro ao enviar mensagem", { position: "bottom-right" });
     }
   }
@@ -114,10 +149,15 @@ export default function ChatMessages() {
       <header className="flex items-center justify-between p-4 bg-zinc-900">
         <div className="flex items-center gap-4">
           <Avatar className="size-12">
-            <AvatarImage src="" alt="" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage
+              src={currentChat?.user.avatar}
+              alt={currentChat?.user.name}
+            />
+            <AvatarFallback>
+              {currentChat?.user.name.slice(0, 2)}
+            </AvatarFallback>
           </Avatar>
-          <h2>gustavo emanuel</h2>
+          <h2>{currentChat?.user.name}</h2>
         </div>
 
         <DropdownMenu>
@@ -135,7 +175,91 @@ export default function ChatMessages() {
         </DropdownMenu>
       </header>
 
-      <div></div>
+      <div className="flex flex-col h-full gap-4 p-4 overflow-y-auto">
+        {chatMessages?.map((message) => {
+          return message.from_user.id === currentChat?.user.id ? (
+            <div
+              key={message.id}
+              className="flex items-center justify-end gap-4 text-sm px-2 py-2 bg-zinc-700 rounded-sm mr-auto"
+            >
+              {message.body && (
+                <div className="flex items-end gap-3">
+                  <span>{message.body}</span>
+                  <span className="text-[10px] text-zinc-200">
+                    {dayjs(message.created_at).format("HH:mm")}
+                  </span>
+                </div>
+              )}
+              {message.attachment?.file && (
+                <div className="flex items-end gap-3">
+                  <a target="_blank" href={message.attachment.file?.src}>
+                    {message.attachment.file.name}.
+                    {message.attachment.file.extension}
+                  </a>
+                  <span className="text-[10px] text-zinc-200">
+                    {dayjs(message.created_at).format("HH:mm")}
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div
+              key={message.id}
+              className="flex items-center justify-end gap-4 text-sm px-2 py-2 bg-emerald-600 rounded-sm ml-auto"
+            >
+              {message.body && (
+                <div className="flex flex-col relative">
+                  <button className="absolute top-0 bg-emerald-600 rounded-full cursor-pointer right-0 text-xs text-zinc-200 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                    <ChevronDown size={22} />
+                  </button>
+                  <div className="flex items-end gap-3">
+                    <span>{message.body}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-zinc-200">
+                        {dayjs(message.created_at).format("HH:mm")}
+                      </span>
+                      <CheckCheck
+                        size={14}
+                        className={
+                          message.viewed_at
+                            ? "text-emerald-900"
+                            : "text-zinc-300"
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              {message.attachment?.file && (
+                <div className="flex flex-col relative">
+                  <button className="absolute top-0 bg-emerald-600 rounded-full cursor-pointer right-0 text-xs text-zinc-200 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                    <ChevronDown size={22} />
+                  </button>
+                  <div className="flex items-end gap-3">
+                    <a target="_blank" href={message.attachment.file?.src}>
+                      {message.attachment.file.name}.
+                      {message.attachment.file.extension}
+                    </a>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-zinc-200">
+                        {dayjs(message.created_at).format("HH:mm")}
+                      </span>
+                      <CheckCheck
+                        size={14}
+                        className={
+                          message.viewed_at
+                            ? "text-emerald-900"
+                            : "text-zinc-300"
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       <footer className="bg-zinc-800 px-3 py-4 flex items-center justify-between gap-4">
         <form
