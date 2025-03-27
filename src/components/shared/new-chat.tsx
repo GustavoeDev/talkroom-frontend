@@ -21,7 +21,11 @@ import { toast } from "sonner";
 import { useChatStore } from "@/stores/chat-store";
 import { ToolTipHoverComponent } from "../layouts/providers";
 
-export default function NewChat() {
+interface NewChatProps {
+  variant?: "default" | "banner";
+}
+
+export default function NewChat({ variant = "default" }: NewChatProps) {
   const { setShowNewChat, showNewChat, setChat } = useChatStore();
 
   const { register, handleSubmit, reset } = useForm<NewChatData>({
@@ -52,9 +56,15 @@ export default function NewChat() {
     <>
       <Drawer open={showNewChat} onOpenChange={setShowNewChat}>
         <DrawerTrigger asChild>
-          <ToolTipHoverComponent text="Nova conversa">
-            <MessageSquareDiff className="dark:text-zinc-400 dark:hover:text-zinc-100 hover:text-zinc-600 cursor-pointer" />
-          </ToolTipHoverComponent>
+          {variant === "default" ? (
+            <ToolTipHoverComponent text="Nova conversa">
+              <MessageSquareDiff className="dark:text-zinc-400 dark:hover:text-zinc-100 hover:text-zinc-600 cursor-pointer" />
+            </ToolTipHoverComponent>
+          ) : (
+            <Button className="bg-emerald-600 hover:bg-emerald-700 border-0 cursor-pointer text-white font-medium transition-colors duration-300">
+              Nova conversa
+            </Button>
+          )}
         </DrawerTrigger>
         <DrawerContent className="p-4">
           <DrawerHeader>

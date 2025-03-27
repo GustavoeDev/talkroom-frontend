@@ -88,7 +88,7 @@ export default function LeftSide() {
             Conversas
           </ToolTipHoverComponent>
           <div className="flex items-center gap-4">
-            <NewChat />
+            <NewChat variant="default" />
             <ModeToggle />
           </div>
         </div>
