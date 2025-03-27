@@ -11,6 +11,7 @@ import {
   Mic,
   Plus,
   SendHorizontal,
+  Trash,
   Trash2,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -31,7 +32,11 @@ import {
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { useChatStore } from "@/stores/chat-store";
-import { createChatMessages, getChatMessages } from "@/lib/requests";
+import {
+  createChatMessages,
+  deleteChatMessages,
+  getChatMessages,
+} from "@/lib/requests";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 import { socket } from "./providers";
@@ -72,6 +77,10 @@ export default function ChatMessages() {
       if (data.type === "create" && currentChat?.id === data.query.chat_id) {
         handleGetChatMessages();
       }
+
+      if (data.type === "delete" && currentChat?.id === data.query.chat_id) {
+        handleGetChatMessages();
+      }
     };
 
     socket.on("update_chat_message", handleUpdateChatMessage);
@@ -80,7 +89,7 @@ export default function ChatMessages() {
       socket.off("update_chat_message", handleUpdateChatMessage);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentChat]);
+  }, [currentChat, chatMessages]);
 
   useEffect(() => {
     const handleMarkAsViewedChat = (data: MarkMessageAsViewedEvent) => {
@@ -142,6 +151,26 @@ export default function ChatMessages() {
     } catch {
       toast.error("Erro ao enviar mensagem", { position: "bottom-right" });
     }
+  }
+
+  async function handleDeleteMessage(
+    e: React.FormEvent<HTMLFormElement>,
+    messageId: number
+  ) {
+    e.preventDefault();
+
+    if (!currentChat) return;
+
+    const response = await deleteChatMessages(currentChat.id, messageId);
+
+    if (response.error) {
+      toast.error(response.error.message, { position: "bottom-right" });
+      return;
+    }
+
+    toast.success("Mensagem deletada com sucesso!", {
+      position: "bottom-right",
+    });
   }
 
   return (
@@ -209,9 +238,26 @@ export default function ChatMessages() {
             >
               {message.body && (
                 <div className="flex flex-col relative">
-                  <button className="absolute top-0 bg-emerald-600 rounded-full cursor-pointer right-0 text-xs text-zinc-200 opacity-0 hover:opacity-100 transition-opacity duration-200">
-                    <ChevronDown size={22} />
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="absolute top-0 bg-emerald-600 rounded-full cursor-pointer right-0 text-xs text-zinc-200 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                        <ChevronDown size={22} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <form
+                        onSubmit={(e) => handleDeleteMessage(e, message.id)}
+                      >
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <button className="w-full" type="submit">
+                            <Trash size={14} className="text-red-500" />
+                            Excluir
+                          </button>
+                        </DropdownMenuItem>
+                      </form>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
                   <div className="flex items-end gap-3">
                     <span>{message.body}</span>
                     <div className="flex items-center gap-1">
@@ -232,9 +278,25 @@ export default function ChatMessages() {
               )}
               {message.attachment?.file && (
                 <div className="flex flex-col relative">
-                  <button className="absolute top-0 bg-emerald-600 rounded-full cursor-pointer right-0 text-xs text-zinc-200 opacity-0 hover:opacity-100 transition-opacity duration-200">
-                    <ChevronDown size={22} />
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="absolute top-0 bg-emerald-600 rounded-full cursor-pointer right-0 text-xs text-zinc-200 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                        <ChevronDown size={22} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <form
+                        onSubmit={(e) => handleDeleteMessage(e, message.id)}
+                      >
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <button className="w-full" type="submit">
+                            <Trash size={14} className="text-red-500" />
+                            Excluir
+                          </button>
+                        </DropdownMenuItem>
+                      </form>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <div className="flex items-end gap-3">
                     <a target="_blank" href={message.attachment.file?.src}>
                       {message.attachment.file.name}.
