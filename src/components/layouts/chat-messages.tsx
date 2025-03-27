@@ -34,6 +34,7 @@ import { User } from "@/types/user";
 import { useChatStore } from "@/stores/chat-store";
 import {
   createChatMessages,
+  deleteChat,
   deleteChatMessages,
   getChatMessages,
 } from "@/lib/requests";
@@ -43,7 +44,12 @@ import { socket } from "./providers";
 import { MarkMessageAsViewedEvent, UpdateMessageEvent } from "@/types/message";
 
 export default function ChatMessages() {
-  const { chat: currentChat, setChatMessages, chatMessages } = useChatStore();
+  const {
+    chat: currentChat,
+    setChat,
+    setChatMessages,
+    chatMessages,
+  } = useChatStore();
 
   const [user, setUser] = useState<User | null>(null);
   const [messageInput, setMessageInput] = useState("");
@@ -173,6 +179,21 @@ export default function ChatMessages() {
     });
   }
 
+  async function handleDeleteChat(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (!currentChat) return;
+
+    const response = await deleteChat(currentChat.id);
+
+    if (response.error) {
+      toast.error(response.error.message, { position: "bottom-right" });
+      return;
+    }
+
+    setChat(null);
+  }
+
   return (
     <div className="flex flex-col justify-between h-full">
       <header className="flex items-center justify-between p-4 bg-zinc-900">
@@ -196,10 +217,17 @@ export default function ChatMessages() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-              <Trash2 size={14} className="text-red-500" />
-              Excluir conversa
-            </DropdownMenuItem>
+            <form onSubmit={(e) => handleDeleteChat(e)}>
+              <DropdownMenuItem
+                asChild
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <button type="submit" className="w-full">
+                  <Trash2 size={14} className="text-red-500" />
+                  Excluir conversa
+                </button>
+              </DropdownMenuItem>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
