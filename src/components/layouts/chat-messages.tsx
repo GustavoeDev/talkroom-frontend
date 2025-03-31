@@ -55,6 +55,7 @@ export default function ChatMessages() {
   const [messageInput, setMessageInput] = useState("");
   const [fileExists, setFileExists] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [typeFile, setTypeFile] = useState<"image" | "application" | "">("");
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -117,9 +118,20 @@ export default function ChatMessages() {
     const file = e.target.files?.[0];
 
     if (file) {
-      console.log("File exists", file);
       setSelectedFile(file);
-      setFileExists(true);
+
+      const type = file.type.split("/")[0];
+
+      if (type === typeFile) {
+        setFileExists(true);
+      } else {
+        toast.error(
+          typeFile === "image"
+            ? "Aceitamos apenas imagens"
+            : "Aceitamos apenas documentos",
+          { position: "bottom-right" }
+        );
+      }
     }
   }
 
@@ -148,9 +160,6 @@ export default function ChatMessages() {
         return;
       }
 
-      toast.success("Mensagem enviada com sucesso!", {
-        position: "bottom-right",
-      });
       setMessageInput("");
       setSelectedFile(null);
       setFileExists(false);
@@ -173,10 +182,6 @@ export default function ChatMessages() {
       toast.error(response.error.message, { position: "bottom-right" });
       return;
     }
-
-    toast.success("Mensagem deletada com sucesso!", {
-      position: "bottom-right",
-    });
   }
 
   async function handleDeleteChat(e: React.FormEvent<HTMLFormElement>) {
@@ -326,7 +331,12 @@ export default function ChatMessages() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <div className="flex items-end gap-3">
-                    <a target="_blank" href={message.attachment.file?.src}>
+                    <a
+                      target="_blank"
+                      href={message.attachment.file?.src}
+                      className="flex gap-2 items-center"
+                    >
+                      <File size={16} />
                       {message.attachment.file.name}.
                       {message.attachment.file.extension}
                     </a>
@@ -363,42 +373,35 @@ export default function ChatMessages() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                  const fileInput = document.getElementById(
-                    "fileMessage"
-                  ) as HTMLInputElement;
-                  fileInput?.click();
-                }}
-              >
-                <div className="flex items-center gap-2 cursor-pointer w-full">
+              <DropdownMenuItem>
+                <label
+                  htmlFor="fileMessage"
+                  className="flex items-center gap-2 cursor-pointer w-full"
+                  onClick={() => setTypeFile("image")}
+                >
                   <Images size={14} />
                   Foto e vídeo
-                </div>
+                </label>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                  const fileInput = document.getElementById(
-                    "fileMessage"
-                  ) as HTMLInputElement;
-                  fileInput?.click();
-                }}
-              >
-                <div className="flex items-center gap-2 cursor-pointer w-full">
+              <DropdownMenuItem>
+                <label
+                  htmlFor="fileMessage"
+                  className="flex items-center gap-2 cursor-pointer w-full"
+                  onClick={() => setTypeFile("application")}
+                >
                   <File size={14} />
                   Documento
-                </div>
-                <input
-                  type="file"
-                  id="fileMessage"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
+                </label>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <input
+            type="file"
+            id="fileMessage"
+            className="hidden"
+            onChange={handleFileChange}
+          />
 
           <input
             type="text"
