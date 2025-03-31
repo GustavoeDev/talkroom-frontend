@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Chat } from "@/types/chat";
 import { User } from "@/types/user";
 import dayjs from "dayjs";
-import { CheckCheck, FileText, Mic } from "lucide-react";
+import { CheckCheck, FileText, Images, Mic } from "lucide-react";
 import { Badge } from "../ui/badge";
 
 interface ChatProps {
@@ -55,10 +55,19 @@ export default function ChatComponent({
                   <Mic size={16} />
                   Mensagem de voz
                 </div>
-              ) : chat.last_message.attachment?.file ? (
+              ) : chat.last_message.attachment?.file?.content_type.includes(
+                  "application"
+                ) ? (
                 <div className="flex items-center gap-1">
                   <FileText size={16} />
                   Arquivo
+                </div>
+              ) : chat.last_message.attachment?.file?.content_type.includes(
+                  "image"
+                ) ? (
+                <div className="flex items-center gap-1">
+                  <Images size={16} />
+                  Imagem
                 </div>
               ) : (
                 ""

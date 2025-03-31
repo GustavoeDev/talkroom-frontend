@@ -42,6 +42,7 @@ import { toast } from "sonner";
 import dayjs from "dayjs";
 import { socket } from "./providers";
 import { MarkMessageAsViewedEvent, UpdateMessageEvent } from "@/types/message";
+import Image from "next/image";
 
 export default function ChatMessages() {
   const {
@@ -336,9 +337,23 @@ export default function ChatMessages() {
                       href={message.attachment.file?.src}
                       className="flex gap-2 items-center"
                     >
-                      <File size={16} />
-                      {message.attachment.file.name}.
-                      {message.attachment.file.extension}
+                      {message.attachment.file.content_type.includes(
+                        "image"
+                      ) ? (
+                        <Image
+                          src={message.attachment.file.src}
+                          alt=""
+                          width={150}
+                          height={150}
+                          className="pt-2 px-3"
+                        />
+                      ) : (
+                        <>
+                          <File size={16} />
+                          {message.attachment.file.name}.
+                          {message.attachment.file.extension}
+                        </>
+                      )}
                     </a>
                     <div className="flex items-center gap-1">
                       <span className="text-[10px] text-zinc-200">

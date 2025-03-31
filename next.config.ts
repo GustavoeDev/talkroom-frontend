@@ -9,10 +9,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    domains: [
-      "avatars.githubusercontent.com",
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}`,
-    ],
+    domains: ["avatars.githubusercontent.com", "127.0.0.1"],
   },
 };
 
