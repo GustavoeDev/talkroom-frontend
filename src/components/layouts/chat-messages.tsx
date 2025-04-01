@@ -29,7 +29,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User } from "@/types/user";
 import { useChatStore } from "@/stores/chat-store";
 import {
@@ -57,6 +57,8 @@ export default function ChatMessages() {
   const [fileExists, setFileExists] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [typeFile, setTypeFile] = useState<"image" | "application" | "">("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -64,6 +66,79 @@ export default function ChatMessages() {
       setUser(JSON.parse(user));
     }
   }, []);
+
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+
+  async function handleStartRecording() {
+    let stream: MediaStream | null = null;
+
+    if ("MediaRecorder" in window) {
+      try {
+        const streamData = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        });
+
+        stream = streamData;
+      } catch {
+        toast.error(
+          "Não foi possível acessar o microfone, habilite o acesso ao microfone",
+          {
+            position: "bottom-right",
+          }
+        );
+        return;
+      }
+    } else {
+      toast.error("Seu navegador não suporta gravação de áudio", {
+        position: "bottom-right",
+      });
+    }
+
+    if (!stream) return;
+
+    setIsRecording(true);
+
+    const media = new MediaRecorder(stream, {
+      mimeType: "audio/webm",
+    });
+
+    mediaRecorder.current = media;
+    mediaRecorder.current.start();
+
+    const localAudioChunks: Blob[] = [];
+
+    mediaRecorder.current.ondataavailable = (event) => {
+      if (typeof event.data === "undefined" || event.data.size === 0) return;
+      localAudioChunks.push(event.data);
+    };
+
+    setAudioChunks(localAudioChunks);
+  }
+
+  function handleSendRecording() {
+    if (!mediaRecorder.current) return;
+
+    setIsRecording(false);
+
+    mediaRecorder.current.stop();
+    mediaRecorder.current.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+      handleCreateNewMessage(undefined, audioBlob);
+      setAudioChunks([]);
+    };
+
+    mediaRecorder.current.stream.getTracks().forEach((track) => track.stop());
+  }
+
+  function handleDeleteRecording() {
+    if (!mediaRecorder.current) return;
+
+    setIsRecording(false);
+
+    mediaRecorder.current.stop();
+    mediaRecorder.current.stream.getTracks().forEach((track) => track.stop());
+  }
 
   async function handleGetChatMessages() {
     if (!currentChat) return;
@@ -136,8 +211,11 @@ export default function ChatMessages() {
     }
   }
 
-  async function handleCreateNewMessage(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleCreateNewMessage(
+    e?: React.FormEvent<HTMLFormElement>,
+    audioBlob?: Blob | null
+  ) {
+    e?.preventDefault();
 
     if (!currentChat) return;
 
@@ -151,6 +229,13 @@ export default function ChatMessages() {
 
     if (messageInput) {
       formData.append("body", messageInput);
+    }
+
+    if (audioBlob) {
+      const audioFile = new window.File([audioBlob], "audio-message.webm", {
+        type: "audio/webm",
+      });
+      formData.append("audio", audioFile);
     }
 
     try {
@@ -255,20 +340,48 @@ export default function ChatMessages() {
               )}
               {message.attachment?.file && (
                 <div className="flex items-end gap-3">
-                  <a target="_blank" href={message.attachment.file?.src}>
-                    {message.attachment.file.name}.
-                    {message.attachment.file.extension}
+                  <a
+                    target="_blank"
+                    href={message.attachment.file?.src}
+                    className="flex gap-2 items-center"
+                  >
+                    {message.attachment.file.content_type.includes("image") ? (
+                      <Image
+                        src={message.attachment.file.src}
+                        alt=""
+                        width={150}
+                        height={150}
+                        className="pt-2 pl-2"
+                      />
+                    ) : (
+                      <>
+                        <File size={16} />
+                        {message.attachment.file.name}.
+                        {message.attachment.file.extension}
+                      </>
+                    )}
                   </a>
-                  <span className="text-[10px] text-zinc-200">
-                    {dayjs(message.created_at).format("HH:mm")}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-zinc-200">
+                      {dayjs(message.created_at).format("HH:mm")}
+                    </span>
+                  </div>
                 </div>
+              )}
+              {message.attachment?.audio && (
+                <audio controls className="rounded-sm">
+                  <source
+                    src={message.attachment.audio.src}
+                    type="audio/mpeg"
+                  />
+                  Seu navegador não suporta o elemento de áudio.
+                </audio>
               )}
             </div>
           ) : (
             <div
               key={message.id}
-              className="flex items-center justify-end gap-4 text-sm px-2 py-2 bg-emerald-600 rounded-sm ml-auto"
+              className="flex items-center relative justify-end gap-4 text-sm px-2 py-2 bg-emerald-600 rounded-sm ml-auto"
             >
               {message.body && (
                 <div className="flex flex-col relative">
@@ -345,7 +458,7 @@ export default function ChatMessages() {
                           alt=""
                           width={150}
                           height={150}
-                          className="pt-2 px-3"
+                          className="pt-2 pl-2"
                         />
                       ) : (
                         <>
@@ -371,94 +484,132 @@ export default function ChatMessages() {
                   </div>
                 </div>
               )}
+              {message.attachment?.audio && (
+                <div className="flex flex-col">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="absolute top-0 right-0 rounded-full cursor-pointer text-xs text-zinc-200 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                        <ChevronDown size={22} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <form
+                        onSubmit={(e) => handleDeleteMessage(e, message.id)}
+                      >
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <button className="w-full" type="submit">
+                            <Trash size={14} className="text-red-500" />
+                            Excluir
+                          </button>
+                        </DropdownMenuItem>
+                      </form>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <audio controls className="rounded-sm">
+                    <source
+                      src={message.attachment.audio.src}
+                      type="audio/mpeg"
+                    />
+                    Seu navegador não suporta o elemento de áudio.
+                  </audio>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
       <footer className="bg-zinc-800 px-3 py-4 flex items-center justify-between gap-4">
-        <form
-          onSubmit={handleCreateNewMessage}
-          className="flex items-center gap-4 justify-between w-full"
-        >
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="cursor-pointer p-2 hover:bg-zinc-600 transition-colors duration-300 rounded-full">
-                <Plus size={24} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>
-                <label
-                  htmlFor="fileMessage"
-                  className="flex items-center gap-2 cursor-pointer w-full"
-                  onClick={() => setTypeFile("image")}
-                >
-                  <Images size={14} />
-                  Foto e vídeo
-                </label>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <label
-                  htmlFor="fileMessage"
-                  className="flex items-center gap-2 cursor-pointer w-full"
-                  onClick={() => setTypeFile("application")}
-                >
-                  <File size={14} />
-                  Documento
-                </label>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <input
-            type="file"
-            id="fileMessage"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-
-          <input
-            type="text"
-            className="w-full bg-zinc-700 p-3 text-sm rounded-sm "
-            placeholder="Digite uma mensagem"
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-          />
-
-          <div className="relative w-11 h-11">
-            <button
-              type="submit"
-              className={`
-              absolute top-0 left-0 w-full h-full 
-              flex items-center justify-center
-              cursor-pointer p-2 transition-all duration-300 
-              ${
-                messageInput.length > 0
-                  ? "opacity-100 rotate-0 scale-100"
-                  : "opacity-0 rotate-180 scale-50"
-              }
-            `}
-            >
-              <SendHorizontal size={22} />
+        {isRecording ? (
+          <form
+            onSubmit={handleCreateNewMessage}
+            className="flex items-center gap-8 px-4"
+          >
+            <button onClick={handleDeleteRecording} className="cursor-pointer">
+              <Trash size={20} />
             </button>
+            <div className="flex items-center gap-3">
+              <span className="block size-2 bg-red-500 rounded-full animate-ping"></span>
 
+              <p className="text-md">Gravação de voz em andamento</p>
+            </div>
             <button
-              className={`
-              absolute top-0 left-0 w-full h-full 
-              flex items-center justify-center
-              cursor-pointer p-2 transition-all duration-300 
-              ${
-                messageInput.length > 0
-                  ? "opacity-0 rotate-180 scale-50"
-                  : "opacity-100 rotate-0 scale-100"
-              }
-            `}
+              onClick={handleSendRecording}
+              className="bg-emerald-700 text-white px-3 py-2 rounded-md border-0 cursor-pointer"
             >
-              <Mic size={22} />
+              <SendHorizontal size={20} />
             </button>
-          </div>
-        </form>
+          </form>
+        ) : (
+          <form
+            onSubmit={handleCreateNewMessage}
+            className="flex items-center gap-4 justify-between w-full"
+          >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="cursor-pointer p-2 hover:bg-zinc-600 transition-colors duration-300 rounded-full">
+                  <Plus size={24} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <label
+                    htmlFor="fileMessage"
+                    className="flex items-center gap-2 cursor-pointer w-full"
+                    onClick={() => setTypeFile("image")}
+                  >
+                    <Images size={14} />
+                    Foto e vídeo
+                  </label>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <label
+                    htmlFor="fileMessage"
+                    className="flex items-center gap-2 cursor-pointer w-full"
+                    onClick={() => setTypeFile("application")}
+                  >
+                    <File size={14} />
+                    Documento
+                  </label>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <input
+              type="file"
+              id="fileMessage"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+
+            <input
+              type="text"
+              className="w-full bg-zinc-700 p-3 text-sm rounded-sm "
+              placeholder="Digite uma mensagem"
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+            />
+
+            <div className="relative w-11 h-11 flex items-center justify-center">
+              {messageInput.length > 0 ? (
+                <button type="submit" className="cursor-pointer">
+                  <SendHorizontal size={22} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setIsRecording(true);
+                    handleStartRecording();
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Mic size={22} />
+                </button>
+              )}
+            </div>
+          </form>
+        )}
 
         <Drawer open={fileExists} onOpenChange={setFileExists}>
           <DrawerContent>
