@@ -287,7 +287,7 @@ export default function ChatMessages() {
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <header className="flex items-center justify-between p-4 bg-zinc-900">
+      <header className="flex items-center justify-between p-4 dark:bg-zinc-900">
         <div className="flex items-center gap-4">
           <Avatar className="size-12">
             <AvatarImage
@@ -323,17 +323,17 @@ export default function ChatMessages() {
         </DropdownMenu>
       </header>
 
-      <div className="flex flex-col h-full gap-4 p-4 overflow-y-auto">
+      <div className="flex flex-col bg-zinc-100 dark:bg-zinc-950 h-full gap-4 p-4 overflow-y-auto">
         {chatMessages?.map((message) => {
           return message.from_user.id === currentChat?.user.id ? (
             <div
               key={message.id}
-              className="flex items-center justify-end gap-4 text-sm px-2 py-2 bg-zinc-700 rounded-sm mr-auto"
+              className="flex items-center justify-end gap-4 text-sm px-2 py-2 bg-zinc-300 dark:bg-zinc-700 rounded-sm mr-auto"
             >
               {message.body && (
                 <div className="flex items-end gap-3">
                   <span>{message.body}</span>
-                  <span className="text-[10px] text-zinc-200">
+                  <span className="text-[10px] text-zinc-600 dark:text-zinc-200">
                     {dayjs(message.created_at).format("HH:mm")}
                   </span>
                 </div>
@@ -362,20 +362,25 @@ export default function ChatMessages() {
                     )}
                   </a>
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-zinc-200">
+                    <span className="text-[10px] text-zinc-600 dark:text-zinc-200">
                       {dayjs(message.created_at).format("HH:mm")}
                     </span>
                   </div>
                 </div>
               )}
               {message.attachment?.audio && (
-                <audio controls className="rounded-sm">
-                  <source
-                    src={message.attachment.audio.src}
-                    type="audio/mpeg"
-                  />
-                  Seu navegador não suporta o elemento de áudio.
-                </audio>
+                <div className="flex items-end gap-3">
+                  <audio controls className="rounded-sm">
+                    <source
+                      src={message.attachment.audio.src}
+                      type="audio/mpeg"
+                    />
+                    Seu navegador não suporta o elemento de áudio.
+                  </audio>
+                  <span className="text-[10px] text-zinc-600 dark:text-zinc-200">
+                    {dayjs(message.created_at).format("HH:mm")}
+                  </span>
+                </div>
               )}
             </div>
           ) : (
@@ -505,14 +510,18 @@ export default function ChatMessages() {
                       </form>
                     </DropdownMenuContent>
                   </DropdownMenu>
-
-                  <audio controls className="rounded-sm">
-                    <source
-                      src={message.attachment.audio.src}
-                      type="audio/mpeg"
-                    />
-                    Seu navegador não suporta o elemento de áudio.
-                  </audio>
+                  <div className="flex items-end gap-3">
+                    <audio controls className="rounded-sm">
+                      <source
+                        src={message.attachment.audio.src}
+                        type="audio/mpeg"
+                      />
+                      Seu navegador não suporta o elemento de áudio.
+                    </audio>
+                    <span className="text-[10px] text-zinc-600 dark:text-zinc-200">
+                      {dayjs(message.created_at).format("HH:mm")}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -520,7 +529,7 @@ export default function ChatMessages() {
         })}
       </div>
 
-      <footer className="bg-zinc-800 px-3 py-4 flex items-center justify-between gap-4">
+      <footer className="dark:bg-zinc-800 px-3 py-4 min-h-[75px] flex items-center justify-between gap-4">
         {isRecording ? (
           <form
             onSubmit={handleCreateNewMessage}
@@ -548,7 +557,7 @@ export default function ChatMessages() {
           >
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="cursor-pointer p-2 hover:bg-zinc-600 transition-colors duration-300 rounded-full">
+                <button className="cursor-pointer p-2 dark:hover:bg-zinc-600 hover:bg-zinc-300 transition-colors duration-300 rounded-full">
                   <Plus size={24} />
                 </button>
               </DropdownMenuTrigger>
@@ -585,7 +594,7 @@ export default function ChatMessages() {
 
             <input
               type="text"
-              className="w-full bg-zinc-700 p-3 text-sm rounded-sm "
+              className="w-full dark:bg-zinc-700 p-3 text-sm rounded-sm border border-zinc-200 dark:border-none"
               placeholder="Digite uma mensagem"
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
