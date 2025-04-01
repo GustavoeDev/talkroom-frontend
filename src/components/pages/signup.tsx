@@ -54,7 +54,7 @@ export default function SignUpComponent() {
             <input
               type="text"
               id="nameUser"
-              className="border border-zinc-400 rounded-sm p-2 text-sm"
+              className="border border-zinc-400 dark:bg-zinc-900 rounded-sm p-2 text-sm"
               placeholder="Digite seu nome"
               {...register("name")}
             />
@@ -65,7 +65,7 @@ export default function SignUpComponent() {
             <input
               type="text"
               id="emailUser"
-              className="border border-zinc-400 rounded-sm p-2 text-sm"
+              className="border border-zinc-400 dark:bg-zinc-900 rounded-sm p-2 text-sm"
               placeholder="Digite seu e-mail"
               {...register("email")}
             />
@@ -76,7 +76,7 @@ export default function SignUpComponent() {
             <input
               type="password"
               id="passwordUser"
-              className="border border-zinc-400 rounded-sm p-2 text-sm"
+              className="border border-zinc-400 dark:bg-zinc-900 rounded-sm p-2 text-sm"
               placeholder="Senha"
               {...register("password")}
             />

@@ -128,3 +128,23 @@ body {
 :focus {
   outline: none;
 }
+
+@layer utilities {
+  input:-webkit-autofill {
+    transition: background-color 5000s ease-in-out 0s; /* Evita mudança instantânea */
+  }
+
+  /* Tema Light */
+  .light input:-webkit-autofill {
+    background-color: white !important;
+    box-shadow: 0 0 0px 1000px white inset !important;
+    -webkit-text-fill-color: black !important;
+  }
+
+  /* Tema Dark */
+  .dark input:-webkit-autofill {
+    background-color: #18181b !important; /* bg-zinc-900 em formato hexadecimal */
+    box-shadow: 0 0 0px 1000px #18181b inset !important;
+    -webkit-text-fill-color: white !important;
+  }
+}
